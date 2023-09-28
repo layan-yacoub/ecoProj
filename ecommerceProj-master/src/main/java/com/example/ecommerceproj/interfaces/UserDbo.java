@@ -1,9 +1,17 @@
 package com.example.ecommerceproj.interfaces;
+import ch.qos.logback.classic.spi.LoggingEventVO;
+import com.example.ecommerceproj.token.Token;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @Table(name = "users")
     @Getter
@@ -11,9 +19,10 @@ import java.time.LocalDateTime;
     @NoArgsConstructor
     @Entity
     @DynamicUpdate
+    @AllArgsConstructor
     @ToString
     @Builder
-    public class UserDbo {
+    public class UserDbo implements UserDetails {
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE)
         @Column(name = "id", nullable = false)
@@ -30,10 +39,17 @@ import java.time.LocalDateTime;
         private String phoneNumber;
         @Column(name = "address")
         private String address ;
+
         @Column(name="otp")
         private String otp; // Field to store OTP
         @Column(name="otpExpiration")
         private LocalDateTime otpExpiration; // Field to store OTP expiration time
+
+        @Enumerated(EnumType.STRING)
+        private Role role ;
+
+         @OneToMany(mappedBy = "users")
+         private List<Token> tokens;
 
         public UserDbo( String email, byte[] hashedPassword) {
             this.email = email;
@@ -62,6 +78,42 @@ import java.time.LocalDateTime;
         this.address = address;
         this.otp = null;
         this.otpExpiration = null;
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return Arrays.toString(hashedPassword);
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
 

@@ -5,6 +5,7 @@ import com.example.ecommerceproj.usecase.UserRepoInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class UserRepoSqlRepo implements UserRepoInterface  {
     }
 
     @Override
-    public UserDbo findByEmail(String email) {
+    public Optional<UserDbo> findByEmail(String email) {
         return userJpaRepo.findByEmail(email);
     }
 
